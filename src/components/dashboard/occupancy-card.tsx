@@ -99,7 +99,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
     if (hasCameraPermission) {
       const interval = setInterval(() => {
         handleAnalyze();
-      }, 10000); // Analyze every 10 seconds
+      }, 5000); // Analyze every 5 seconds
 
       return () => clearInterval(interval);
     }
@@ -113,7 +113,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
           <div>
             <CardTitle>Occupancy Detection</CardTitle>
             <CardDescription>
-              Automatically analyzing the camera feed for occupancy.
+              Continuously analyzing the camera feed.
             </CardDescription>
           </div>
           {loading && <Loader2 className="animate-spin text-primary" />}
