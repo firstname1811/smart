@@ -82,15 +82,20 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
           });
         }
       }
-    } catch (error) {
+    } catch (error)
+      {
       console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Detection Failed",
-        description: "Could not analyze the image. Please try again.",
-      });
+      const errorMessage = error instanceof Error ? error.message : "Could not analyze the image. Please try again.";
+      if (!errorMessage.includes('rate limit')) {
+        toast({
+          variant: "destructive",
+          title: "Detection Failed",
+          description: errorMessage,
+        });
+      }
       setOccupancy(0);
-    } finally {
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -99,7 +104,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
     if (hasCameraPermission) {
       const interval = setInterval(() => {
         handleAnalyze();
-      }, 5000); // Analyze every 5 seconds
+      }, 15000); // Analyze every 15 seconds
 
       return () => clearInterval(interval);
     }
