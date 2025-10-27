@@ -57,7 +57,7 @@ export function AutomatedAdjustments({
         roomId: "living-room-1",
         occupancy,
         applianceStatuses,
-        energyConsumptionThreshold,
+        energyConsumptionThreshold: energyThreshold,
         currentEnergyConsumption,
       });
 
