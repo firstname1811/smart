@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import type { Appliance } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Fan, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,9 +44,14 @@ export function ApplianceControl({
   appliances,
   setAppliances,
 }: ApplianceControlProps) {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingAppliance, setEditingAppliance] = useState<Appliance | null>(
     null
   );
+
+  const [newName, setNewName] = useState("");
+  const [newPower, setNewPower] = useState("");
+
   const [editedName, setEditedName] = useState("");
   const [editedPower, setEditedPower] = useState("");
   const { toast } = useToast();
@@ -81,7 +86,7 @@ export function ApplianceControl({
     setAppliances((prev) =>
       prev.map((app) =>
         app.id === editingAppliance.id
-          ? { ...app, name: editedName, power: parseInt(editedPower, 10) }
+          ? { ...app, name: editedName, power: parseInt(editedPower, 10) || 0 }
           : app
       )
     );
@@ -91,14 +96,89 @@ export function ApplianceControl({
     });
     setEditingAppliance(null);
   };
+  
+  const handleAddAppliance = () => {
+    if (!newName || !newPower) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please enter a name and power for the new appliance.",
+      });
+      return;
+    }
+    const newAppliance: Appliance = {
+      id: `appliance-${Date.now()}`,
+      name: newName,
+      power: parseInt(newPower, 10),
+      icon: Fan, // Default icon, can be customized further
+      status: "Off",
+    };
+    setAppliances((prev) => [...prev, newAppliance]);
+    toast({
+      title: "Appliance Added",
+      description: `${newName} has been added to your list.`,
+    });
+    setNewName("");
+    setNewPower("");
+    setIsAddDialogOpen(false);
+  };
+
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Appliance Control</CardTitle>
-        <CardDescription>
-          Monitor and control your smart appliances in real-time.
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Appliance Control</CardTitle>
+          <CardDescription>
+            Monitor and control your smart appliances in real-time.
+          </CardDescription>
+        </div>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2"/>
+              Add Appliance
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Appliance</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="new-name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="new-name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="col-span-3"
+                  placeholder="e.g., Desk Lamp"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="new-power" className="text-right">
+                  Power (W)
+                </Label>
+                <Input
+                  id="new-power"
+                  type="number"
+                  value={newPower}
+                  onChange={(e) => setNewPower(e.target.value)}
+                  className="col-span-3"
+                  placeholder="e.g., 60"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+               <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={handleAddAppliance}>Add Appliance</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent>
         <Table>
@@ -160,6 +240,44 @@ export function ApplianceControl({
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
+                      {editingAppliance?.id === appliance.id && (
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Appliance</DialogTitle>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="name" className="text-right">
+                                Name
+                              </Label>
+                              <Input
+                                id="name"
+                                value={editedName}
+                                onChange={(e) => setEditedName(e.target.value)}
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="power" className="text-right">
+                                Power (W)
+                              </Label>
+                              <Input
+                                id="power"
+                                type="number"
+                                value={editedPower}
+                                onChange={(e) => setEditedPower(e.target.value)}
+                                className="col-span-3"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button onClick={handleSaveEdit}>Save Changes</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      )}
                     </Dialog>
                     <Button
                       variant="ghost"
@@ -174,45 +292,6 @@ export function ApplianceControl({
             ))}
           </TableBody>
         </Table>
-
-        {editingAppliance && (
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Appliance</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="power" className="text-right">
-                  Power (W)
-                </Label>
-                <Input
-                  id="power"
-                  type="number"
-                  value={editedPower}
-                  onChange={(e) => setEditedPower(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button onClick={handleSaveEdit}>Save Changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
       </CardContent>
     </Card>
   );
