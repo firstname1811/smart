@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ApplianceControl } from "@/components/dashboard/appliance-control";
@@ -34,7 +35,7 @@ export default function DashboardPage() {
           <ApplianceControl appliances={appliances} setAppliances={setAppliances} />
         </div>
         <div className="flex flex-col gap-6">
-          <OccupancyCard setOccupancy={setOccupancy} />
+          <OccupancyCard setOccupancy={setOccupancy} setAppliances={setAppliances} />
           <AutomatedAdjustments 
             appliances={appliances}
             occupancy={occupancy}

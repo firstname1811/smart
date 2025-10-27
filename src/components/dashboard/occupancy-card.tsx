@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -8,43 +9,78 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-import Image from "next/image";
 import { Button } from "../ui/button";
-import { useRef, useState } from "react";
-import { Loader2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Camera, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { detectOccupancy } from "@/app/actions";
+import type { Appliance } from "@/lib/types";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 type OccupancyCardProps = {
   setOccupancy: (count: number) => void;
+  setAppliances: React.Dispatch<React.SetStateAction<Appliance[]>>;
 };
 
-export function OccupancyCard({ setOccupancy }: OccupancyCardProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const { toast } = useToast();
-  const roomImage = PlaceHolderImages.find((img) => img.id === "living-room");
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this app.',
+        });
+      }
+    };
+
+    getCameraPermission();
+  }, [toast]);
+
+  const handleAnalyze = async () => {
+    if (!videoRef.current) return;
 
     setLoading(true);
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const dataUri = reader.result as string;
-        const result = await detectOccupancy({ photoDataUri: dataUri });
-        setOccupancy(result.occupantCount);
+      const canvas = document.createElement("canvas");
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const context = canvas.getContext("2d");
+      context?.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      const dataUri = canvas.toDataURL("image/jpeg");
+      
+      const result = await detectOccupancy({ photoDataUri: dataUri });
+      setOccupancy(result.occupantCount);
+
+      if (result.occupantCount === 0) {
+        setAppliances((prev) =>
+          prev.map((app) => ({ ...app, status: "Off" }))
+        );
+        toast({
+          title: "Room Empty",
+          description: "All appliances have been turned off automatically.",
+        });
+      } else {
         toast({
           title: "Occupancy Detected",
           description: `The AI detected ${result.occupantCount} occupant(s) in the room.`,
         });
-      };
-      reader.readAsDataURL(file);
+      }
+
     } catch (error) {
       console.error(error);
       toast({
@@ -55,10 +91,6 @@ export function OccupancyCard({ setOccupancy }: OccupancyCardProps) {
       setOccupancy(0);
     } finally {
       setLoading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     }
   };
 
@@ -67,42 +99,36 @@ export function OccupancyCard({ setOccupancy }: OccupancyCardProps) {
       <CardHeader>
         <CardTitle>Occupancy Detection</CardTitle>
         <CardDescription>
-          Analyze a camera feed to determine room occupancy.
+          Analyze a live camera feed to determine room occupancy.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
-          {roomImage && (
-            <Image
-              src={roomImage.imageUrl}
-              alt={roomImage.description}
-              fill
-              className="object-cover"
-              data-ai-hint={roomImage.imageHint}
-            />
+          <video ref={videoRef} className="w-full aspect-video rounded-md" autoPlay muted playsInline />
+          {!hasCameraPermission && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <Alert variant="destructive" className="w-auto">
+                <AlertTitle>Camera Access Required</AlertTitle>
+                <AlertDescription>
+                  Please allow camera access to use this feature.
+                </AlertDescription>
+              </Alert>
+            </div>
           )}
-          <div className="absolute inset-0 bg-black/20" />
         </div>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept="image/*"
-        />
       </CardContent>
       <CardFooter>
         <Button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={loading}
+          onClick={handleAnalyze}
+          disabled={loading || !hasCameraPermission}
           className="w-full"
         >
           {loading ? (
             <Loader2 className="animate-spin" />
           ) : (
-            <Upload className="mr-2" />
+            <Camera className="mr-2" />
           )}
-          <span>{loading ? "Analyzing..." : "Upload Image & Analyze"}</span>
+          <span>{loading ? "Analyzing..." : "Analyze Camera Feed"}</span>
         </Button>
       </CardFooter>
     </Card>
