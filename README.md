@@ -71,3 +71,4 @@ This mini project demonstrates an intelligent and practical approach to energy o
 
 The solution is versatile and can be applied to households, offices, and industries, making it a step forward toward smarter, greener, and more automated environments. Beyond immediate savings, this system encourages responsible energy usage and contributes to reducing carbon footprints. With further integration of IoT devices and large-scale deployment, it holds the potential to become part of future smart city infrastructures. Ultimately, this work highlights how technology can be designed to support both human comfort and environmental responsibility in the era of smart living.
 # smartenergy1
+# smartenergy1
