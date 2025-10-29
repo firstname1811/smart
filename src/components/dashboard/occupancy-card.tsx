@@ -58,7 +58,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       message: message,
     };
 
-    emailjs.send(serviceId, templateId, templateParams, userId)
+    emailjs.send(serviceId, templateId, templateParams, { publicKey: userId })
       .then((response) => {
         console.log('SUCCESS!', response.status, response.text);
         toast({
