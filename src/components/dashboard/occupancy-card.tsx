@@ -12,7 +12,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { detectOccupancy } from "@/app/actions";
+import { detectOccupancy, sendNotification } from "@/app/actions";
 import type { Appliance } from "@/lib/types";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
@@ -75,10 +75,18 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
                 : app
             )
           );
+          const notificationMessage = "The AI detected an empty room and turned off the fan to save energy.";
           toast({
             title: "Room Empty: Fan Turned Off",
-            description: "The AI detected an empty room and turned off the fan to save energy.",
+            description: notificationMessage,
           });
+
+          // Send a notification
+          const userEmail = localStorage.getItem("userEmail");
+          if (userEmail) {
+            await sendNotification({ email: userEmail, message: notificationMessage });
+          }
+
         } else if (result.occupantCount > 0) {
            toast({
             title: "Occupancy Detected",

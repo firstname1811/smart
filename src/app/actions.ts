@@ -33,3 +33,24 @@ export async function predictEnergyUsage(
   const result = await predictEnergyUse(input);
   return result;
 }
+
+export async function sendNotification(
+  input: { email: string; message: string }
+) {
+  // This is a placeholder for a real notification service.
+  // In a real application, you would use a service like SendGrid, Resend, or Firebase Cloud Messaging.
+  console.log(`Sending notification to ${input.email}: ${input.message}`);
+
+  // Example using a hypothetical email service:
+  //
+  // import { EmailClient } from 'some-email-service';
+  // const client = new EmailClient(process.env.EMAIL_API_KEY);
+  // await client.send({
+  //   to: input.email,
+  //   from: 'noreply@ecotrack.app',
+  //   subject: 'EcoTrack Energy Alert',
+  //   body: input.message,
+  // });
+
+  return { success: true };
+}
