@@ -98,7 +98,8 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       {
       console.error(error);
       const errorMessage = error instanceof Error ? error.message : "Could not analyze the image. Please try again.";
-      if (!errorMessage.includes('rate limit')) {
+      // Silently ignore overload errors, as they are temporary.
+      if (!errorMessage.includes('rate limit') && !errorMessage.includes('overloaded')) {
         toast({
           variant: "destructive",
           title: "Detection Failed",
