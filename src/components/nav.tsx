@@ -15,9 +15,9 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const menuItems = [
-  { href: "/", label: "Dashboard", icon: LayoutGrid },
-  { href: "/reports", label: "Reports", icon: LineChart },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { href: "/dashboard/reports", label: "Reports", icon: LineChart },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export function Nav() {
