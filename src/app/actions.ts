@@ -4,6 +4,7 @@ import {
   automatedEnergyAdjustments,
   type AutomatedEnergyAdjustmentsInput,
 } from '@/ai/flows/automated-energy-adjustments';
+import { generateEnergyReport } from '@/ai/flows/generate-energy-report';
 import { occupancyDetection, type OccupancyDetectionInput } from '@/ai/flows/occupancy-detection';
 import {
   predictEnergyUse,
@@ -29,4 +30,8 @@ export async function predictEnergyUsage(
   input: z.infer<typeof PredictiveEnergyUseSchema>
 ): Promise<{ prediction: string; suggestions: string }> {
   return await predictEnergyUse(input);
+}
+
+export async function getEnergyReport() {
+  return await generateEnergyReport();
 }

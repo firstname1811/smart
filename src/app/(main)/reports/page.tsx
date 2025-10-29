@@ -1,7 +1,10 @@
+import { getEnergyReport } from "@/app/actions";
 import { EnergyUsageChart } from "@/components/reports/energy-usage-chart";
 import { PredictiveEnergyForm } from "@/components/reports/predictive-energy-form";
 
-export default function ReportsPage() {
+export default async function ReportsPage() {
+  const energyData = await getEnergyReport();
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -11,7 +14,7 @@ export default function ReportsPage() {
         </p>
       </div>
 
-      <EnergyUsageChart />
+      <EnergyUsageChart chartData={energyData.report} />
       <PredictiveEnergyForm />
     </div>
   );

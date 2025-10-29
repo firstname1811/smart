@@ -11,20 +11,9 @@ import {
 import {
   ChartContainer,
   ChartTooltip,
-_ChartTooltipContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
-
-const chartData = [
-  { day: "Monday", usage: 1860 },
-  { day: "Tuesday", usage: 3050 },
-  { day: "Wednesday", usage: 2370 },
-  { day: "Thursday", usage: 2010 },
-  { day: "Friday", usage: 2590 },
-  { day: "Saturday", usage: 3200 },
-  { day: "Sunday", usage: 2980 },
-];
 
 const chartConfig = {
   usage: {
@@ -33,12 +22,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function EnergyUsageChart() {
+type EnergyUsageChartProps = {
+  chartData: { day: string; usage: number }[];
+};
+
+export function EnergyUsageChart({ chartData }: EnergyUsageChartProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Energy Usage Report</CardTitle>
-        <CardDescription>Daily energy consumption for the last 7 days.</CardDescription>
+        <CardDescription>
+          AI-generated energy consumption for the last 7 days.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
