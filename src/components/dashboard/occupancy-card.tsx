@@ -21,11 +21,6 @@ type OccupancyCardProps = {
   setAppliances: React.Dispatch<React.SetStateAction<Appliance[]>>;
 };
 
-const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
-const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
-const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
-
-
 export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +28,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
   const { toast } = useToast();
 
   useEffect(() => {
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
     if (publicKey) {
       emailjs.init(publicKey);
     } else {
@@ -47,6 +43,9 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
 
 
   const sendEmailNotification = (message: string) => {
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    
     const userEmail = localStorage.getItem("userEmail");
     const userName = localStorage.getItem("userName") || "User";
     
@@ -55,7 +54,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       return;
     }
     
-    if (!serviceId || !templateId || !publicKey) {
+    if (!serviceId || !templateId) {
       console.error("EmailJS environment variables are not set.");
       toast({
         variant: "destructive",
