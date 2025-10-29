@@ -43,8 +43,8 @@ export async function sendNotification(
   // 1. Get a Resend API key from https://resend.com/api-keys
   // 2. Add the key to your .env file: RESEND_API_KEY=your_key_here
   // 3. Make sure you have a verified domain in Resend to send emails from.
-  if (!process.env.RESEND_API_KEY) {
-    console.log("Resend API key not found. Skipping email notification.");
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'YOUR_API_KEY_HERE') {
+    console.log("Resend API key not found or is a placeholder. Skipping email notification.");
     return { success: false, error: "Resend API key not configured." };
   }
   
@@ -52,7 +52,7 @@ export async function sendNotification(
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: 'onboarding@resend.dev', // Must be a verified domain on Resend
+      from: 'onboarding@resend.dev', // IMPORTANT: Replace with your verified domain on Resend
       to: input.email,
       subject: 'EcoTrack Energy Alert',
       html: `<p>${input.message}</p>`,
