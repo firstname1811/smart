@@ -45,6 +45,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
   const sendEmailNotification = (message: string) => {
     const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
     const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
     
     const userEmail = localStorage.getItem("userEmail");
     const userName = localStorage.getItem("userName") || "User";
@@ -54,7 +55,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       return;
     }
     
-    if (!serviceId || !templateId) {
+    if (!serviceId || !templateId || !publicKey) {
       console.error("EmailJS environment variables are not set.");
       toast({
         variant: "destructive",
