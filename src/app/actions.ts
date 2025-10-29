@@ -13,6 +13,7 @@ import {
   predictEnergyUse,
   type PredictiveEnergyUseInput,
 } from "@/ai/flows/predictive-energy-use-tool";
+import { Resend } from 'resend';
 
 export async function detectOccupancy(
   input: OccupancyDetectionInput
@@ -38,18 +39,16 @@ export async function predictEnergyUsage(
 export async function sendNotification(
   input: { email: string; message: string }
 ) {
-  // This is a placeholder for a real notification service.
-  // To send actual emails, you need to integrate a service like Resend or SendGrid.
-  console.log(`Sending notification to ${input.email}: ${input.message}`);
+  // To send actual emails, you need to:
+  // 1. Get a Resend API key from https://resend.com/api-keys
+  // 2. Add the key to your .env file: RESEND_API_KEY=your_key_here
+  // 3. Make sure you have a verified domain in Resend to send emails from.
+  if (!process.env.RESEND_API_KEY) {
+    console.log("Resend API key not found. Skipping email notification.");
+    return { success: false, error: "Resend API key not configured." };
+  }
   
-  // --- Example using Resend ---
-  // 1. Install Resend: `npm install resend`
-  // 2. Get an API key from https://resend.com
-  // 3. Add the key to your .env file: RESEND_API_KEY=your_key_here
-  // 4. Uncomment the code below:
-  /*
   try {
-    const { Resend } = await import('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
@@ -66,7 +65,4 @@ export async function sendNotification(
     console.error("Failed to send email:", error);
     return { success: false, error: "Failed to send email." };
   }
-  */
-
-  return { success: true, message: "Notification is a placeholder." };
 }
