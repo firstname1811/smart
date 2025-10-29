@@ -70,7 +70,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
         toast({
           variant: "destructive",
           title: "Notification Failed",
-          description: "Could not send the email alert.",
+          description: "Could not send the email alert. Please check EmailJS configuration.",
         });
       });
   };
