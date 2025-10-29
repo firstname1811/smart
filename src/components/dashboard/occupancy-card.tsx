@@ -76,8 +76,8 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
             )
           );
           toast({
-            title: "Room Empty, Fan Running",
-            description: "The fan has been turned off automatically to save energy.",
+            title: "Room Empty: Fan Turned Off",
+            description: "The AI detected an empty room and turned off the fan to save energy.",
           });
         } else if (result.occupantCount > 0) {
            toast({
