@@ -52,7 +52,9 @@ export async function sendNotification(
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: 'onboarding@resend.dev', // IMPORTANT: Replace with your verified domain on Resend
+      // IMPORTANT: Replace this with an email from a domain you have verified in Resend.
+      // For example, 'noreply@yourdomain.com'.
+      from: 'onboarding@resend.dev', 
       to: input.email,
       subject: 'EcoTrack Energy Alert',
       html: `<p>${input.message}</p>`,
