@@ -14,33 +14,38 @@ const initialAppliances: Appliance[] = [
 ];
 
 export default function DashboardPage() {
-  const [appliances, setAppliances] = useState<Appliance[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedAppliances = localStorage.getItem('appliances');
-      if (savedAppliances) {
-        try {
-          const parsed = JSON.parse(savedAppliances);
-          // The icon property can't be stored in JSON, so we need to re-assign it.
-          return parsed.map((app: Appliance) => ({...app, icon: Fan}));
-        } catch (e) {
-          console.error("Failed to parse appliances from localStorage", e);
-          return initialAppliances;
-        }
-      }
-    }
-    return initialAppliances;
-  });
-
+  const [appliances, setAppliances] = useState<Appliance[]>(initialAppliances);
   const [occupancy, setOccupancy] = useState(0);
   const [energyThreshold, setEnergyThreshold] = useState(500); // Default threshold in Watts
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    setIsClient(true);
+    const savedAppliances = localStorage.getItem('appliances');
+    if (savedAppliances) {
+      try {
+        const parsed = JSON.parse(savedAppliances);
+        // The icon property can't be stored in JSON, so we need to re-assign it.
+        setAppliances(parsed.map((app: Appliance) => ({...app, icon: Fan})));
+      } catch (e) {
+        console.error("Failed to parse appliances from localStorage", e);
+        setAppliances(initialAppliances);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
        // We need to strip out non-serializable parts like the icon component before saving.
       const appliancesToSave = appliances.map(({ icon, ...rest }) => rest);
       localStorage.setItem('appliances', JSON.stringify(appliancesToSave));
     }
-  }, [appliances]);
+  }, [appliances, isClient]);
+
+  if (!isClient) {
+    // Render a loading state or null on the server and initial client render
+    return null; 
+  }
 
   return (
     <div className="flex flex-col gap-8">
