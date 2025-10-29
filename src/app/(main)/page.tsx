@@ -6,14 +6,11 @@ import { AutomatedAdjustments } from "@/components/dashboard/automated-adjustmen
 import { OccupancyCard } from "@/components/dashboard/occupancy-card";
 import { OverviewStats } from "@/components/dashboard/overview-stats";
 import type { Appliance } from "@/lib/types";
-import { Fan, Lightbulb, Tv, Wind } from "lucide-react";
+import { Fan } from "lucide-react";
 import { useState } from "react";
 
 const initialAppliances: Appliance[] = [
   { id: "fan-1", name: "Ceiling Fan", icon: Fan, status: "On", power: 75 },
-  { id: "light-1", name: "Main Lights", icon: Lightbulb, status: "On", power: 100 },
-  { id: "tv-1", name: "Television", icon: Tv, status: "Off", power: 150 },
-  { id: "ac-1", name: "Air Conditioner", icon: Wind, status: "Off", power: 1500 },
 ];
 
 export default function DashboardPage() {
