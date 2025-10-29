@@ -12,9 +12,10 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { detectOccupancy, sendNotification } from "@/app/actions";
+import { detectOccupancy } from "@/app/actions";
 import type { Appliance } from "@/lib/types";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import emailjs from '@emailjs/browser';
 
 type OccupancyCardProps = {
   setOccupancy: (count: number) => void;
@@ -26,6 +27,53 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
   const [loading, setLoading] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const { toast } = useToast();
+
+  const sendEmailNotification = (message: string) => {
+    const userEmail = localStorage.getItem("userEmail");
+    const userName = localStorage.getItem("userName") || "User";
+    
+    if (!userEmail) {
+      console.log("No user email found for notification.");
+      return;
+    }
+
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const userId = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
+
+    if (!serviceId || !templateId || !userId) {
+      console.error("EmailJS environment variables are not set.");
+      toast({
+        variant: "destructive",
+        title: "Email Not Sent",
+        description: "Email configuration is missing.",
+      });
+      return;
+    }
+
+    const templateParams = {
+      to_name: userName,
+      to_email: userEmail,
+      from_name: "EcoTrack AI",
+      message: message,
+    };
+
+    emailjs.send(serviceId, templateId, templateParams, userId)
+      .then((response) => {
+        console.log('SUCCESS!', response.status, response.text);
+        toast({
+          title: "Notification Sent",
+          description: `An alert has been sent to ${userEmail}.`,
+        });
+      }, (err) => {
+        console.error('FAILED...', err);
+        toast({
+          variant: "destructive",
+          title: "Notification Failed",
+          description: "Could not send the email alert.",
+        });
+      });
+  };
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -56,7 +104,6 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
     setLoading(true);
     try {
       const canvas = document.createElement("canvas");
-      // Reduce canvas size for faster processing
       canvas.width = 640;
       canvas.height = 480;
       const context = canvas.getContext("2d");
@@ -81,11 +128,8 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
             description: notificationMessage,
           });
 
-          // Send a notification
-          const userEmail = localStorage.getItem("userEmail");
-          if (userEmail) {
-            await sendNotification({ email: userEmail, message: notificationMessage });
-          }
+          // Send a notification via EmailJS
+          sendEmailNotification(notificationMessage);
 
         } else if (result.occupantCount > 0) {
            toast({
@@ -98,8 +142,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       {
       console.error(error);
       const errorMessage = error instanceof Error ? error.message : "Could not analyze the image. Please try again.";
-      // Silently ignore overload errors, as they are temporary.
-      if (!errorMessage.includes('rate limit') && !errorMessage.includes('overloaded')) {
+      if (!errorMessage.includes('overloaded')) {
         toast({
           variant: "destructive",
           title: "Detection Failed",
