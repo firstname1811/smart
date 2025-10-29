@@ -7,16 +7,40 @@ import { OccupancyCard } from "@/components/dashboard/occupancy-card";
 import { OverviewStats } from "@/components/dashboard/overview-stats";
 import type { Appliance } from "@/lib/types";
 import { Fan } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const initialAppliances: Appliance[] = [
   { id: "fan-1", name: "Ceiling Fan", icon: Fan, status: "On", power: 75 },
 ];
 
 export default function DashboardPage() {
-  const [appliances, setAppliances] = useState<Appliance[]>(initialAppliances);
+  const [appliances, setAppliances] = useState<Appliance[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedAppliances = localStorage.getItem('appliances');
+      if (savedAppliances) {
+        try {
+          const parsed = JSON.parse(savedAppliances);
+          // The icon property can't be stored in JSON, so we need to re-assign it.
+          return parsed.map((app: Appliance) => ({...app, icon: Fan}));
+        } catch (e) {
+          console.error("Failed to parse appliances from localStorage", e);
+          return initialAppliances;
+        }
+      }
+    }
+    return initialAppliances;
+  });
+
   const [occupancy, setOccupancy] = useState(0);
   const [energyThreshold, setEnergyThreshold] = useState(500); // Default threshold in Watts
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+       // We need to strip out non-serializable parts like the icon component before saving.
+      const appliancesToSave = appliances.map(({ icon, ...rest }) => rest);
+      localStorage.setItem('appliances', JSON.stringify(appliancesToSave));
+    }
+  }, [appliances]);
 
   return (
     <div className="flex flex-col gap-8">
