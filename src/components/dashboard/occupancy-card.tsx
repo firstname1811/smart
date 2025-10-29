@@ -21,6 +21,11 @@ type OccupancyCardProps = {
   setAppliances: React.Dispatch<React.SetStateAction<Appliance[]>>;
 };
 
+const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
+const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
+const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
+
+
 export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(false);
@@ -28,7 +33,6 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
   const { toast } = useToast();
 
   useEffect(() => {
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
     if (publicKey) {
       emailjs.init(publicKey);
     } else {
@@ -50,16 +54,13 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       console.log("No user email found for notification.");
       return;
     }
-
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-
-    if (!serviceId || !templateId) {
+    
+    if (!serviceId || !templateId || !publicKey) {
       console.error("EmailJS environment variables are not set.");
       toast({
         variant: "destructive",
         title: "Email Not Sent",
-        description: "EmailJS configuration is missing (Service ID or Template ID).",
+        description: "EmailJS configuration is missing.",
       });
       return;
     }
