@@ -67,16 +67,20 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
         const result = await detectOccupancy({ photoDataUri: dataUri });
         setOccupancy(result.occupantCount);
 
-        if (result.occupantCount === 0) {
-          setAppliances((prev) =>
-            prev.map((app) => (app.status === "On" ? { ...app, status: "Off" } : app))
+        if (result.occupantCount === 0 && result.fanInMotion) {
+           setAppliances((prev) =>
+            prev.map((app) =>
+              app.name.toLowerCase().includes("fan")
+                ? { ...app, status: "Off" }
+                : app
+            )
           );
           toast({
-            title: "Room Empty",
-            description: "All appliances have been turned off automatically.",
+            title: "Room Empty, Fan Running",
+            description: "The fan has been turned off automatically to save energy.",
           });
-        } else {
-          toast({
+        } else if (result.occupantCount > 0) {
+           toast({
             title: "Occupancy Detected",
             description: `The AI detected ${result.occupantCount} occupant(s) in the room.`,
           });
@@ -108,6 +112,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
 
       return () => clearInterval(interval);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasCameraPermission]);
 
 
