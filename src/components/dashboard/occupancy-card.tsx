@@ -27,6 +27,21 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
+    if (publicKey) {
+      emailjs.init(publicKey);
+    } else {
+      console.error("EmailJS Public Key is not set.");
+      toast({
+        variant: "destructive",
+        title: "EmailJS Not Configured",
+        description: "The EmailJS Public Key is missing from the environment variables.",
+      });
+    }
+  }, [toast]);
+
+
   const sendEmailNotification = (message: string) => {
     const userEmail = localStorage.getItem("userEmail");
     const userName = localStorage.getItem("userName") || "User";
@@ -38,14 +53,13 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
 
     const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
     const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    const userId = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
 
-    if (!serviceId || !templateId || !userId) {
+    if (!serviceId || !templateId) {
       console.error("EmailJS environment variables are not set.");
       toast({
         variant: "destructive",
         title: "Email Not Sent",
-        description: "Email configuration is missing.",
+        description: "EmailJS configuration is missing (Service ID or Template ID).",
       });
       return;
     }
@@ -57,7 +71,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
       message: message,
     };
 
-    emailjs.send(serviceId, templateId, templateParams, userId)
+    emailjs.send(serviceId, templateId, templateParams)
       .then((response) => {
         console.log('SUCCESS!', response.status, response.text);
         toast({
@@ -69,7 +83,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
         toast({
           variant: "destructive",
           title: "Notification Failed",
-          description: "Could not send the email alert. Please check EmailJS configuration.",
+          description: "Could not send the email alert. Please check EmailJS configuration and credentials.",
         });
       });
   };
