@@ -38,11 +38,13 @@ import { useToast } from "@/hooks/use-toast";
 type ApplianceControlProps = {
   appliances: Appliance[];
   setAppliances: React.Dispatch<React.SetStateAction<Appliance[]>>;
+  fanInMotion: boolean;
 };
 
 export function ApplianceControl({
   appliances,
   setAppliances,
+  fanInMotion
 }: ApplianceControlProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingAppliance, setEditingAppliance] = useState<Appliance | null>(
@@ -57,6 +59,18 @@ export function ApplianceControl({
   const { toast } = useToast();
 
   const handleToggle = (id: string, checked: boolean) => {
+    const appliance = appliances.find(a => a.id === id);
+    if (!appliance) return;
+
+    // If trying to turn off a fan that is still in motion
+    if (appliance.name.toLowerCase().includes("fan") && !checked && fanInMotion) {
+      toast({
+        title: "Fan is currently on",
+        description: "The AI has detected that the fan is still in motion.",
+      });
+      return; // Prevent the switch from changing state
+    }
+    
     setAppliances((prev) =>
       prev.map((appliance) =>
         appliance.id === id

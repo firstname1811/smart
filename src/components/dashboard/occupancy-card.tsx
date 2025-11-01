@@ -19,9 +19,10 @@ import emailjs from '@emailjs/browser';
 type OccupancyCardProps = {
   setOccupancy: (count: number) => void;
   setAppliances: React.Dispatch<React.SetStateAction<Appliance[]>>;
+  setFanInMotion: (inMotion: boolean) => void;
 };
 
-export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProps) {
+export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: OccupancyCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
@@ -127,6 +128,7 @@ export function OccupancyCard({ setOccupancy, setAppliances }: OccupancyCardProp
         
         const result = await detectOccupancy({ photoDataUri: dataUri });
         setOccupancy(result.occupantCount);
+        setFanInMotion(result.fanInMotion);
 
         if (result.occupantCount === 0 && result.fanInMotion) {
            setAppliances((prev) =>

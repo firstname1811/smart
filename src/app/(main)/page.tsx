@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [occupancy, setOccupancy] = useState(0);
   const [energyThreshold, setEnergyThreshold] = useState(500); // Default threshold in Watts
   const [isClient, setIsClient] = useState(false);
+  const [fanInMotion, setFanInMotion] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -58,10 +59,10 @@ export default function DashboardPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <ApplianceControl appliances={appliances} setAppliances={setAppliances} />
+          <ApplianceControl appliances={appliances} setAppliances={setAppliances} fanInMotion={fanInMotion} />
         </div>
         <div className="flex flex-col gap-6">
-          <OccupancyCard setOccupancy={setOccupancy} setAppliances={setAppliances} />
+          <OccupancyCard setOccupancy={setOccupancy} setAppliances={setAppliances} setFanInMotion={setFanInMotion}/>
           <AutomatedAdjustments 
             appliances={appliances}
             occupancy={occupancy}
