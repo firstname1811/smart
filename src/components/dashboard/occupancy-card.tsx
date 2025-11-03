@@ -38,7 +38,7 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
        toast({
         variant: "destructive",
         title: "EmailJS Not Configured",
-        description: "One or more EmailJS credentials are missing.",
+        description: "EmailJS credentials are not fully set in .env.local. Please check the file and restart the server.",
         duration: 10000,
        });
        return;
@@ -55,9 +55,14 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
     const userEmail = localStorage.getItem("userEmail");
     const userName = localStorage.getItem("userName") || "User";
     
-    if (!userEmail) {
+    if (!userEmail || userEmail === "user@example.com") {
       console.log("No user email found for notification.");
-      // Don't show a toast for this, as it's a normal state if user hasn't set an email
+      toast({
+        variant: "destructive",
+        title: "Notification Email Not Set",
+        description: "Please set your email address on the Settings page to receive notifications.",
+        duration: 10000,
+      });
       return;
     }
 
