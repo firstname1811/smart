@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { detectOccupancy } from "@/app/actions";
 import type { Appliance } from "@/lib/types";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import emailjs from '@emailjs/browser';
+import emailjs, { type EmailJSResponseStatus } from '@emailjs/browser';
 
 type OccupancyCardProps = {
   setOccupancy: (count: number) => void;
@@ -80,12 +80,12 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
           title: "Notification Sent",
           description: `An alert has been sent to ${userEmail}.`,
         });
-      }, (err) => {
-        console.error('FAILED...', err);
+      }, (err: EmailJSResponseStatus) => {
+        console.error('FAILED...', { status: err.status, text: err.text });
         toast({
           variant: "destructive",
           title: "Notification Failed",
-          description: "Could not send the email alert. Please check EmailJS configuration and credentials.",
+          description: `Could not send email alert. Reason: ${err.text || 'Unknown error'}. Please check EmailJS configuration.`,
         });
       });
   };
