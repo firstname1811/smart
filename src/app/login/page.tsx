@@ -13,12 +13,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Bolt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('user@example.com');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // In a real app, you'd authenticate here.
+    // For now, we'll save the user's info to local storage to simulate a session.
+    localStorage.setItem('userEmail', email);
+    // Use a default name if one isn't already set
+    if (!localStorage.getItem('userName')) {
+      localStorage.setItem('userName', 'Eco User');
+    }
     router.push('/dashboard');
   };
 
@@ -42,7 +51,8 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="user@example.com"
-                defaultValue="user@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
