@@ -15,18 +15,22 @@ export function ProfileForm() {
   const [threshold, setThreshold] = useState(500);
   const [name, setName] = useState("Eco User");
   const [email, setEmail] = useState("user@example.com");
+  const [location, setLocation] = useState("New York, USA");
 
   useEffect(() => {
     const savedName = localStorage.getItem("userName");
     const savedEmail = localStorage.getItem("userEmail");
+    const savedLocation = localStorage.getItem("userLocation");
     if (savedName) setName(savedName);
     if (savedEmail) setEmail(savedEmail);
+    if (savedLocation) setLocation(savedLocation);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem("userName", name);
     localStorage.setItem("userEmail", email);
+    localStorage.setItem("userLocation", location);
     toast({
       title: "Settings Saved",
       description: "Your energy profile has been updated.",
@@ -52,6 +56,10 @@ export function ProfileForm() {
               <Label htmlFor="email">Email for Notifications</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
           <div className="space-y-4">
             <div className="flex justify-between items-baseline">
