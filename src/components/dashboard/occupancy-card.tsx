@@ -38,7 +38,7 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
        toast({
         variant: "destructive",
         title: "EmailJS Not Configured",
-        description: "One or more EmailJS credentials are missing from your .env file.",
+        description: "One or more EmailJS credentials are missing.",
         duration: 10000,
        });
        return;
@@ -62,10 +62,9 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
     }
 
     const templateParams = {
-      to_name: userName,
-      to_email: userEmail,
-      from_name: "EcoTrack AI",
-      message: message,
+      name: userName,
+      email: userEmail,
+      firstname: "EcoTrack AI",
     };
 
     emailjs.send(serviceId, templateId, templateParams)
@@ -76,11 +75,12 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
           description: `An alert has been sent to ${userEmail}.`,
         });
       }, (err: EmailJSResponseStatus) => {
-        console.error('EmailJS FAILED...', err);
+        const errorText = err.text || "Unknown error. Check your EmailJS account dashboard for issues with the service, template, or account settings.";
+        console.error('FAILED...', { status: err.status, text: errorText });
         toast({
           variant: "destructive",
           title: "Notification Failed",
-          description: `Could not send email. Reason: ${err.text || 'Unknown error'}. Please verify your EmailJS service, template, and account settings.`,
+          description: `Could not send email. Reason: ${errorText}`,
           duration: 10000,
         });
       });
