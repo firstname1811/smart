@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Bolt } from "lucide-react";
 
-export default function MainLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
