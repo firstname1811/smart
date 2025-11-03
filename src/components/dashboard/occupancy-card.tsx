@@ -30,39 +30,34 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
 
   useEffect(() => {
     const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-    if (publicKey) {
-      emailjs.init(publicKey);
-    } else {
-      console.error("EmailJS Public Key is not set.");
-      toast({
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+
+    if (!publicKey || !serviceId || !templateId) {
+       console.error("EmailJS environment variables are not fully set.");
+       toast({
         variant: "destructive",
         title: "EmailJS Not Configured",
-        description: "The EmailJS Public Key is missing from the environment variables.",
-      });
+        description: "One or more EmailJS credentials are missing from your .env file.",
+        duration: 10000,
+       });
+       return;
     }
+
+    emailjs.init(publicKey);
   }, [toast]);
 
 
   const sendEmailNotification = (message: string) => {
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
     
     const userEmail = localStorage.getItem("userEmail");
     const userName = localStorage.getItem("userName") || "User";
     
     if (!userEmail) {
       console.log("No user email found for notification.");
-      return;
-    }
-    
-    if (!serviceId || !templateId || !publicKey) {
-      console.error("EmailJS environment variables are not set.");
-      toast({
-        variant: "destructive",
-        title: "Email Not Sent",
-        description: "EmailJS configuration is missing.",
-      });
+      // Don't show a toast for this, as it's a normal state if user hasn't set an email
       return;
     }
 
@@ -75,17 +70,18 @@ export function OccupancyCard({ setOccupancy, setAppliances, setFanInMotion }: O
 
     emailjs.send(serviceId, templateId, templateParams)
       .then((response) => {
-        console.log('SUCCESS!', response.status, response.text);
+        console.log('EmailJS SUCCESS!', response.status, response.text);
         toast({
           title: "Notification Sent",
           description: `An alert has been sent to ${userEmail}.`,
         });
       }, (err: EmailJSResponseStatus) => {
-        console.error('FAILED...', { status: err.status, text: err.text });
+        console.error('EmailJS FAILED...', err);
         toast({
           variant: "destructive",
           title: "Notification Failed",
-          description: `Could not send email alert. Reason: ${err.text || 'Unknown error'}. Please check EmailJS configuration.`,
+          description: `Could not send email. Reason: ${err.text || 'Unknown error'}. Please verify your EmailJS service, template, and account settings.`,
+          duration: 10000,
         });
       });
   };
