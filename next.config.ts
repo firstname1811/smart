@@ -38,6 +38,7 @@ const nextConfig: NextConfig = {
       }
     },
   },
+  allowedDevOrigins: ["https://3000-firebase-smartgit-1762169110318.cluster-nulpgqge5rgw6rwqiydysl6ocy.cloudworkstations.dev"],
 };
 
 export default nextConfig;
